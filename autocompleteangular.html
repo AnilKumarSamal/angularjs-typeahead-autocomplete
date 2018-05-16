@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+ <html>
+      <head>
+           <title>Testing auto complete angular</title>
+           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+           <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+           <style>
+           li{
+                cursor:pointer;
+           }
+           li:hover
+           {
+                background-color:#f9f9f9;
+           }
+           ul{
+             position: absolute;
+              width: 100%;
+              max-width:469px;
+              cursor: pointer;
+              overflow-y: auto;
+              max-height: 400px;
+              box-sizing: border-box;
+              z-index: 1001;
+           }
+           </style>
+      </head>
+      <body>
+           <br /><br />
+           <div class="container" style="width:500px;">
+                <div ng-app="myapp" ng-controller="usercontroller">
+                     <label>Enter Country Name</label>
+                     <input type="text" name="country" id="country" ng-model="country" ng-keyup="complete(country)" class="form-control" />
+                     <ul class="list-group" ng-model="hidethis" ng-hide="hidethis">
+                          <li class="list-group-item" ng-repeat="countrydata in filterCountry" ng-click="fillTextbox(countrydata)">{{countrydata}}</li>
+                     </ul>
+                </div>
+                <header class="jumbotron my-4">
+                    <h1 class="display-3">A Warm Welcome!</h1>
+                    <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, ipsam, eligendi, in quo sunt possimus non incidunt odit vero aliquid similique quaerat nam nobis illo aspernatur vitae fugiat numquam repellat.</p>
+                    <a href="#" class="btn btn-primary btn-lg">Call to action!</a>
+                </header>
+           </div>
+      </body>
+ </html>
+ <script>
+ var app = angular.module("myapp",[]);
+ app.controller("usercontroller", function($scope,$http){
+      $scope.countryList = []
+      $scope.complete = function(string){
+          if(string.length>2){ //checking for atleast 3 chracters
+             $scope.hidethis = false;
+             var output = [];
+             angular.forEach($scope.countryList, function(country){
+                  if(country.toLowerCase().indexOf(string.toLowerCase()) >= 0)
+                  {
+                       output.push(country);
+                  }
+             });
+             $scope.filterCountry = output;
+         }else{
+              $scope.hidethis = true;
+         }
+      }
+      $scope.fillTextbox = function(string){
+           $scope.country = string;
+           $scope.hidethis = true;
+      }
+      //get dynamic data using ajax
+      $scope.getList= function(){
+        $http({
+      			method: 'GET',
+      			url: 'https://restcountries.eu/rest/v2/all',
+      			headers: {'Content-Type': 'application/json'}
+      		})
+      		.then(function successCallback(response) {
+            for (let value of response.data) {
+              $scope.countryList.push(value.name);
+            }
+      		}, function errorCallback(response) {
+      			alert("some thing went wrong please try again");
+      		});
+      }
+      $scope.getList();
+ });
+ </script>
